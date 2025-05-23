@@ -37,7 +37,7 @@ class Utils:
         self.title = "{:<1}{}".format("", "Smuggling")
         self.author = "Anshuman Pattnaik / @anspattnaik / Mod: @manesec"
         self.blog = "https://hackbotone.com/blog/http-request-smuggling-detection-tool"
-        self.version = "0.1"
+        self.version = "0.2"
 
     def print_header(self):
         cprint(figlet_format(self.title.center(20), font='cybermedium'), 'red', attrs=['bold'])

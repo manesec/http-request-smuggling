@@ -1,6 +1,14 @@
 {
 	"permute": [
 		{
+			"type": "somechar",
+			"content_length_key": "Content-Length:",
+			"transfer_encoding": {
+				"te_key": "Transfer-Encoding: ",
+				"te_value": "testchunked"
+			}
+		},
+		{
 			"type": "spacejoin",
 			"content_length_key": "Content-Length:",
 			"transfer_encoding": {
@@ -12,8 +20,24 @@
 			"type": "default",
 			"content_length_key": "Content-Length:",
 			"transfer_encoding": {
-				"te_key": "Transfer-Encoding:",
+				"te_key": "Transfer-Encoding: ",
 				"te_value": "chunked"
+			}
+		},
+		{
+			"type": "x09",
+			"content_length_key": "Content-Length: ",
+			"transfer_encoding": {
+				"te_key": "Transfer-Encoding: ",
+				"te_value": "\\x09chunked"
+			}
+		},
+		{
+			"type": "x0b",
+			"content_length_key": "Content-Length: ",
+			"transfer_encoding": {
+				"te_key": "Transfer-Encoding: ",
+				"te_value": "\\x0bchunked"
 			}
 		},
 		{
@@ -315,6 +339,11 @@
 			"type": "TE.CL",
 			"payload": "\r\n0\r\n\r\n\r\nG",
 			"content_length": 6
+		},
+		{
+			"type": "TE.CL2",
+			"payload": "5\r\nHELLO\r\n0\r\n\r\n",
+			"content_length": 3
 		}
 	]
 }
