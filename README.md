@@ -10,6 +10,17 @@ The tool is written using python and to use this tool you must have python versi
 It's quite important to know some of the legal disclaimers before scanning any of the targets, you should have proper authorization before scanning any of the targets otherwise I suggest do not use this tool to scan an unauthorized target because to detect the vulnerability it sends multiple payloads for multiple times by using (--retry) option which means if something goes wrong then there is a possibility that backend socket might get poisoned with the payloads and any genuine visitors of that particular website might end up seeing the poisoned payload rather seeing the actual content of the website. So I'll highly suggest taking proper precautions before scanning any of the target website otherwise you will face some legal issue.
 
 ### Installation
+
+```
+# pipx
+pipx install git+https://github.com/manesec/http-request-smuggling.git
+
+# uv
+uv tool install git+https://github.com/manesec/http-request-smuggling
+
+```
+
+### Installation from source
 `````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
 git clone https://github.com/anshumanpattnaik/http-request-smuggling.git
 cd http-request-smuggling

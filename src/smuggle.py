@@ -42,13 +42,16 @@ parser = argparse.ArgumentParser(description='HTTP Request Smuggling vulnerabili
 parser.add_argument("-u", "--url", help="set the target url")
 parser.add_argument("-urls", "--urls", help="set list of target urls, i.e (urls.txt)")
 parser.add_argument("-t", "--timeout", help="set socket timeout, default - 10")
+parser.add_argument("-w", "--wait", type=float, default=1, help="set each waiting time (seconds), default - 1")
 parser.add_argument("-m", "--method", help="set HTTP Methods, i.e (GET or POST), default - POST")
 parser.add_argument("-r", "--retry", help="set the retry count to re-execute the payload, default - 2")
 args = parser.parse_args()
 
+history_value = [None, None, None]
 
 def hrs_detection(_host, _port, _path, _method, permute_type, content_length_key, te_key, te_value, smuggle_type,
-                  content_length, payload, _timeout):
+                  content_length, payload, _timeout, waiting_time):
+    global history_value
     headers = ''
     headers += '{} {} HTTP/1.1{}'.format(_method, _path, constants.crlf)
     headers += 'Host: {}{}'.format(_host, constants.crlf)
@@ -71,6 +74,7 @@ def hrs_detection(_host, _port, _path, _method, permute_type, content_length_key
                                      _style_status), end="\r", flush=True)
 
     start_time = time.time()
+    status_code = 0
 
     try:
         connection = SocketConnection()
@@ -103,8 +107,12 @@ def hrs_detection(_host, _port, _path, _method, permute_type, content_length_key
             _style_status = colored(constants.delayed_response_msg, constants.red, attrs=['bold'])
             _reports = constants.reports + '/{}/{}-{}{}'.format(_host, permute_type, smuggle_type, constants.extenstion)
             utils.write_payload(_reports, smuggle_body)
+
+        elif history_value[0] == permute_type and history_value[1] == smuggle_type and history_value[2] != status_code:
+            _style_status = colored(constants.status_code_no_match, constants.red, attrs=['bold'])
         else:
             _style_status = colored(constants.ok, constants.green, attrs=['bold'])
+
     except Exception as exception:
         elapsed_time = str(round((time.time() - start_time) % 60, 2)) + "s"
         _style_elapsed_time = "{}".format(colored(elapsed_time, constants.yellow, attrs=['bold']))
@@ -116,8 +124,11 @@ def hrs_detection(_host, _port, _path, _method, permute_type, content_length_key
                                      _style_status))
 
     # There is a delay of 1 second after executing each payload
-    time.sleep(1)
+    time.sleep(waiting_time)
 
+    history_value[0] = permute_type
+    history_value[1] = smuggle_type
+    history_value[2] = status_code
 
 if __name__ == "__main__":
     # If the python version less than 3.x then it will exit
@@ -169,7 +180,7 @@ if __name__ == "__main__":
                 retry = int(args.retry) if args.retry else 2
 
                 # To detect the HRS it requires at least 1 retry count
-                if retry == 0:
+                if retry == 0 or retry < 2:
                     print(constants.invalid_retry_count)
                     sys.exit(1)
 
@@ -203,7 +214,9 @@ if __name__ == "__main__":
                                                         colored(reports, constants.blue, attrs=['bold'])))
                 print()
 
-                payloads = open('payloads.json')
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                payloads_path = os.path.join(script_dir, 'payloads.json')
+                payloads = open(payloads_path)
                 data = json.load(payloads)
 
                 payload_list = list()
@@ -220,7 +233,7 @@ if __name__ == "__main__":
                                           d[constants.type],
                                           d[constants.content_length],
                                           d[constants.payload],
-                                          timeout)
+                                          timeout, args.wait)
             except ValueError as _:
                 print(result)
     except KeyboardInterrupt as e:
